@@ -11,4 +11,7 @@ You will need a user with `Application Administrator` or `Global Adminisrator` i
 
 Expect a little time to complete the report, depending on the Users, Devices and the number of apps as the script iterates through all items.
 
+`IntuneAPIs`
 
+A work in progress for the generation of reports for Intune, some beta SDK commands and APIs seem to have bugs that require running a report firstly in the browser before working.
+Files are generated for each report with Date columns for appending in PBi reports
