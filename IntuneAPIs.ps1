@@ -1,5 +1,5 @@
 ############
-## Reports 1 and 2,3  need firstly to have the reports generated in Intune directly, This might be a limitation of the beta version
+## Reports 1 and 2,3,4  need firstly to have the reports generated in Intune directly, This might be a limitation of the beta version
 ##############################
 # Set Variables
 
@@ -63,8 +63,8 @@ function Convert-JsonToObject ($theJson) {
   }
 
 
-#Connects to MgGraph and assigns the relevant scopes
-Connect-MgGraph -Scopes "DeviceManagementApps.Read.All,DeviceManagementConfiguration.Read.All,DeviceManagementManagedDevices.Read.All,DeviceManagementApps.ReadWrite.All,DeviceManagementConfiguration.ReadWrite.All,DeviceManagementManagedDevices.ReadWrite.All"
+#Connects to MgGraph and assigns the relevant scope
+Connect-MgGraph -Scopes "DeviceManagementApps.Read.All,DeviceManagementConfiguration.Read.All,DeviceManagementManagedDevices.Read.All"
 
 
 <########################### REPORT 1 Windows Feature updates #####################################################################
@@ -90,16 +90,8 @@ $params = @{
 }
 
 $winFeatureUpdates = Get-MgBetaDeviceManagementReportCachedReport -BodyParameter $params -OutFile C:\temp\WFU.txt
-
-
-#-Body "{`"Id`":`"FeatureUpdatePolicyStatusSummary_00000000-0000-0000-0000-000000000002`",`"Skip`":0,`"Top`":50,`"Search`":`"`",`"OrderBy`":[],`"Select`":[`"PolicyId`",`"PolicyName`",`"CountDevicesInProgressStatus`",`"CountDevicesCancelledStatus`",`"CountDevicesErrorStatus`",`"CountDevicesSuccessStatus`",`"FeatureUpdateVersion`",`"CountDevicesOnHoldStatus`",`"CountDevicesRollbackStatus`"]}"
-
-
 $winFeatureUpdatesString = Get-Content C:\temp\WFU.txt
-
-
 $winFeatureUpdatesObject = Convert-JsonToObject $winFeatureUpdatesString
-
 $winFeatureUpdatesObjectCancelled = $winFeatureUpdatesObject.Values[0][0] + $winFeatureUpdatesObject.Values[1][0]
 $winFeatureUpdatesObjectErrors = $winFeatureUpdatesObject.Values[0][1] + $winFeatureUpdatesObject.Values[1][1]
 $winFeatureUpdatesObjectInProgress = $winFeatureUpdatesObject.Values[0][2] + $winFeatureUpdatesObject.Values[1][2]
@@ -164,8 +156,6 @@ Add-DateDataCsv -file $file -day $dateDay -month $dateMonth -year $dateYear
 
 <########################### REPORT 4 EXPEDITED UPDATES #####################################################################
 
-
-
 $params = @{
 	Id = "QualityUpdatePolicyStatusSummary_00000000-0000-0000-0000-000000000002"
 	Skip = 0
@@ -187,12 +177,7 @@ $params = @{
   
   $winExpeditedFeatures = Get-MgBetaDeviceManagementReportCachedReport -BodyParameter $params -OutFile C:\temp\Expedited.txt
   
-  
-  #-Body "{`"Id`":`"FeatureUpdatePolicyStatusSummary_00000000-0000-0000-0000-000000000002`",`"Skip`":0,`"Top`":50,`"Search`":`"`",`"OrderBy`":[],`"Select`":[`"PolicyId`",`"PolicyName`",`"CountDevicesInProgressStatus`",`"CountDevicesCancelledStatus`",`"CountDevicesErrorStatus`",`"CountDevicesSuccessStatus`",`"FeatureUpdateVersion`",`"CountDevicesOnHoldStatus`",`"CountDevicesRollbackStatus`"]}"
-  
-  
   $winExpeditedFeaturesString = Get-Content C:\temp\Expedited.txt
-  
   
   $winExpeditedFeaturesObject = Convert-JsonToObject $winExpeditedFeaturesString
 
@@ -204,10 +189,6 @@ $params = @{
   $file = Initialize-CSVHeaders -fileName Expedited -day $dateDay -month $dateMonth -year $dateYear -headers "Cancelled,Errors,In Progress,Success"
   Add-CSVContent -file $file -values "$winExpeditedFeaturesObjectCancelled,$winExpeditedFeaturesObjectErrors,$winExpeditedFeaturesObjectInProgress,$winExpeditedFeaturesObjectSuccess"
   Add-DateDataCsv -file $file -day $dateDay -month $dateMonth -year $dateYear
-
-
-
-
 
 <########################### REPORT 4 ENCRYPTED DEVICES #####################################################################
 
@@ -357,12 +338,8 @@ Clear-Host
 
 
 
-
-  
- 
-
 ########################### REPORT 6 Device Analytics #####################################################################>
-$a= Get-MgBetaDeviceManagementUserExperienceAnalyticDevicePerformance -all|Export-Csv C:\temp\DeviceAnalytics.csv
+Get-MgBetaDeviceManagementUserExperienceAnalyticDevicePerformance -all|Export-Csv C:\temp\DeviceAnalytics.csv
 
 $data = Import-Csv C:\temp\DeviceAnalytics.csv
 $data | Select-Object *, @{n=”Year”;e={$dateYear}} | Export-CSV C:\temp\DeviceAnalytics.csv -NoTypeInformation
