@@ -338,7 +338,7 @@ Clear-Host
 
 
 
-########################### REPORT 6 Device Analytics #####################################################################>
+########################### REPORT 6 Device Analytics #####################################################################
 Get-MgBetaDeviceManagementUserExperienceAnalyticDevicePerformance -all|Export-Csv C:\temp\DeviceAnalytics.csv
 
 $data = Import-Csv C:\temp\DeviceAnalytics.csv
